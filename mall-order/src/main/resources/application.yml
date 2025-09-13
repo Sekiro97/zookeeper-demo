@@ -1,0 +1,64 @@
+server:
+  port: 8020
+spring:
+  application:
+    name: mall-order  #微服务名称
+  config:
+    import:
+      - zookeeper:node1:2181
+      - zookeeper:node2:2181
+      - zookeeper:node3:2181
+  #配置zookeeper注册中心地址
+  cloud:
+    zookeeper:
+      connect-string: node1:2181,node2:2181,node3:2181
+      discovery:
+        root: /mall                                    # 根路径，可隔离
+      config:
+        defaultContext: allApp
+        profileSeparator: '::'
+        root: myconfig
+        enabled: true
+  datasource:
+    dynamic:
+      primary: master #默认使用master数据源
+      strict: false
+      datasource:
+        master:
+          url: jdbc:mysql://172.16.10.1:13306/mall-order?zeroDateTimeBehavior=convertToNull&useUnicode=true&characterEncoding=UTF-8&serverTimezone=Asia/Shanghai&autoReconnect=true&allowMultiQueries=true
+          username: root
+          password: zwj19970923
+          driver-class-name: com.mysql.jdbc.Driver
+        s1:
+          url: jdbc:mysql://172.16.10.1:13306/mall-user?zeroDateTimeBehavior=convertToNull&useUnicode=true&characterEncoding=UTF-8&serverTimezone=Asia/Shanghai&autoReconnect=true&allowMultiQueries=true
+          username: root
+          password: zwj19970923
+          driver-class-name: com.mysql.jdbc.Driver
+
+
+seata:
+  # 配置注册中心地址
+  registry:
+    type: zk
+    zk:
+      server-addr: node1:2181,node2:2181,node3:2181
+  # 配置事务分组
+  tx-service-group: shanghai_group
+  # 配置中心地址
+  config:
+    type: zk
+    zk:
+      server-addr: node1:2181,node2:2181,node3:2181
+
+
+mybatis-plus:
+  mapper-locations: classpath*:/mapper/**/*.xml
+
+
+
+#暴露actuator端点
+management:
+  endpoints:
+    web:
+      exposure:
+        include: '*'

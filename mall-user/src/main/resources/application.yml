@@ -1,0 +1,87 @@
+server:
+  port: 8040
+
+spring:
+  application:
+    name: mall-user  #微服务名称
+  profiles:
+    active: dev
+  config:
+    import:
+      - zookeeper:node1:2181
+      - zookeeper:node2:2181
+      - zookeeper:node3:2181
+  #配置zookeeper注册中心和配置中心的地址
+  cloud:
+    zookeeper:
+      connect-string: node1:2181,node2:2181,node3:2181
+      discovery:
+        root: /mall
+      config:
+        defaultContext: allApp
+        profileSeparator: '::'
+        root: myconfig
+        enabled: true
+  datasource:
+    dynamic:
+      primary: master #默认使用master数据源
+      strict: false
+      datasource:
+        master:
+          url: jdbc:mysql://172.16.10.1:13306/mall-user?zeroDateTimeBehavior=convertToNull&useUnicode=true&characterEncoding=UTF-8&serverTimezone=Asia/Shanghai&autoReconnect=true&allowMultiQueries=true
+          username: root
+          password: zwj19970923
+          driver-class-name: com.mysql.jdbc.Driver
+        s1:
+          url: jdbc:mysql://172.16.10.1:13306/mall-order?zeroDateTimeBehavior=convertToNull&useUnicode=true&characterEncoding=UTF-8&serverTimezone=Asia/Shanghai&autoReconnect=true&allowMultiQueries=true
+          username: root
+          password: zwj19970923
+          driver-class-name: com.mysql.jdbc.Driver
+
+
+seata:
+  # 配置注册中心地址
+  registry:
+    type: zk
+    zk:
+      server-addr: node1:2181,node2:2181,node3:2181
+  # 配置事务分组
+  tx-service-group: shanghai_group
+  # 配置中心地址
+  config:
+    type: zk
+    zk:
+      server-addr: node1:2181,node2:2181,node3:2181
+  enabled: true
+
+
+mybatis-plus:
+  mapper-locations: classpath*:/mapper/**/*.xml
+
+#mybatis-plus
+#mybatis-plus:
+#  mapper-locations: classpath*:/mapper/**/*.xml
+#  #实体扫描，多个package用逗号或者分号分隔
+#  typeAliasesPackage: com.tuling.mall.*.entity
+#  global-config:
+#    #数据库相关配置
+#    db-config:
+#      #主键类型  AUTO:"数据库ID自增"
+#      id-type: AUTO
+#      logic-delete-value: -1
+#      logic-not-delete-value: 0
+#      banner: false
+#    #原生配置
+#    configuration:
+#      map-underscore-to-camel-case: true
+#      cache-enabled: false
+#      call-setters-on-nulls: true
+#      jdbc-type-for-null: 'null'
+
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: '*'
+
